@@ -1,3 +1,0 @@
-$(function () {
-    $('.intro').addClass('go');
-})

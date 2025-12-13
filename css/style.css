@@ -1,0 +1,632 @@
+/* === ROOT VARIABLES === */
+:root {
+    --bg-black: #000000;
+
+    --terminal-green: #00ff00;
+    --green-bright: #33ff33;
+    --green-dim: #008800;
+    --amber: #ffb000;
+    --red: #ff0000;
+    --gray: #666666;
+
+    --font-mono: 'Fira Code', 'JetBrains Mono', 'Courier New', monospace;
+}
+
+/* === GLOBAL RESET === */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-mono);
+    background: var(--bg-black);
+    color: var(--terminal-green);
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+    font-size: 14px;
+    line-height: 1.5;
+    /* Remove smooth font rendering for pixelated look */
+    -webkit-font-smoothing: none;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* === BOOT SEQUENCE SCREEN === */
+.boot-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--bg-black);
+    z-index: 10000;
+    display: none;
+    padding: 40px;
+    font-family: var(--font-mono);
+}
+
+.boot-screen.active {
+    display: block;
+}
+
+.boot-content {
+    max-width: 800px;
+    margin: 0 auto;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+.boot-log {
+    flex: 1;
+    overflow-y: auto;
+    margin-bottom: 20px;
+    color: var(--terminal-green);
+    scrollbar-width: none; /* Hide scrollbar for raw look */
+}
+
+.boot-log::-webkit-scrollbar {
+    display: none;
+}
+
+.log-line {
+    margin-bottom: 2px;
+    white-space: pre-wrap;
+}
+
+.log-timestamp {
+    color: var(--gray);
+    margin-right: 10px;
+}
+
+.log-message {
+    color: var(--terminal-green);
+}
+
+
+
+.boot-progress-container {
+    margin-top: 20px;
+}
+
+.boot-progress-bar {
+    width: 100%;
+    height: 20px;
+    border: 1px solid var(--terminal-green);
+    padding: 2px;
+    margin-bottom: 5px;
+}
+
+.boot-progress-fill {
+    height: 100%;
+    background: var(--terminal-green);
+    width: 0%;
+    /* No smooth transition for progress */
+}
+
+.boot-progress-text {
+    text-align: right;
+    color: var(--terminal-green);
+}
+
+.skip-btn {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    background: var(--bg-black);
+    border: 1px solid var(--gray);
+    color: var(--gray);
+    padding: 5px 10px;
+    font-family: var(--font-mono);
+    cursor: pointer;
+    font-size: 12px;
+    opacity: 0.5;
+}
+
+.skip-btn:hover {
+    opacity: 1;
+    border-color: var(--terminal-green);
+    color: var(--terminal-green);
+    background: var(--bg-black);
+}
+
+/* === LOGIN SCREEN === */
+.login-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(2px);
+    z-index: 10001;
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+.login-screen.active {
+    display: flex;
+}
+
+.login-container {
+    width: 400px;
+    border: 1px solid var(--terminal-green);
+    padding: 20px;
+    background: var(--bg-black);
+    /* Removed box-shadow glow */
+}
+
+.login-header {
+    border-bottom: 1px solid var(--terminal-green);
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+}
+
+.system-status {
+    color: var(--green-bright);
+    animation: blink .5s infinite;
+}
+
+.login-row {
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    height: 24px;
+}
+
+.login-label {
+    width: 100px;
+    color: var(--terminal-green);
+}
+
+.login-input {
+    color: var(--green-bright);
+    font-weight: bold;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.access-message {
+    margin-top: 20px;
+    text-align: center;
+    border-top: 1px solid var(--green-dim);
+    padding-top: 15px;
+}
+
+.success-text {
+    display: block;
+    color: var(--bg-black);
+    background: var(--terminal-green);
+    font-weight: bold;
+    padding: 5px;
+    margin-bottom: 5px;
+    animation: blink 0.5s infinite;
+}
+
+.loading-text {
+    font-size: 12px;
+    color: var(--gray);
+}
+
+/* === MAIN SCREEN === */
+.main-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--bg-black);
+    display: none;
+}
+
+.main-screen.active {
+    display: block;
+}
+
+/* === VISUAL EFFECTS === */
+#matrix-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    opacity: 0.25; /* Subtle background effect */
+    pointer-events: none;
+    display: none; /* Hidden by default, activated by command */
+}
+
+.scanlines {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        to bottom,
+        rgba(255, 255, 255, 0),
+        rgba(255, 255, 255, 0) 50%,
+        rgba(0, 0, 0, 0.2) 50%,
+        rgba(0, 0, 0, 0.2)
+    );
+    background-size: 100% 4px;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.6;
+    animation: scanlineMove 10s linear infinite;
+}
+
+.grid-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        linear-gradient(rgba(0, 255, 0, 0.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 255, 0, 0.1) 1px, transparent 1px);
+    background-size: 20px 20px;
+    pointer-events: none;
+    z-index: 9998;
+    opacity: 0.5;
+}
+
+/* CRT Flicker Animation */
+body::after {
+    content: " ";
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background: rgba(18, 16, 16, 0.1);
+    opacity: 0;
+    z-index: 9999;
+    pointer-events: none;
+    animation: flicker 0.15s infinite;
+}
+
+@keyframes scanlineMove {
+    0% { background-position: 0 0; }
+    100% { background-position: 0 100%; }
+}
+
+@keyframes flicker {
+    0% { opacity: 0.02; }
+    5% { opacity: 0.05; }
+    10% { opacity: 0.02; }
+    15% { opacity: 0.06; }
+    20% { opacity: 0.02; }
+    25% { opacity: 0.02; }
+    30% { opacity: 0.02; }
+    35% { opacity: 0.01; }
+    40% { opacity: 0.02; }
+    45% { opacity: 0.02; }
+    50% { opacity: 0.02; }
+    55% { opacity: 0.05; }
+    60% { opacity: 0.02; }
+    65% { opacity: 0.02; }
+    70% { opacity: 0.01; }
+    75% { opacity: 0.02; }
+    80% { opacity: 0.02; }
+    85% { opacity: 0.02; }
+    90% { opacity: 0.02; }
+    95% { opacity: 0.02; }
+    100% { opacity: 0.02; }
+}
+
+@keyframes blink {
+    0%, 49% { opacity: 1; }
+    50%, 100% { opacity: 0; }
+}
+
+.cursor {
+    animation: blink 1s infinite;
+    color: var(--terminal-green);
+    margin-left: 2px;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* === TERMINAL LAYOUT === */
+.terminal-status-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 30px;
+    background: var(--green-dim);
+    color: var(--bg-black);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 10px;
+    font-size: 12px;
+    font-weight: bold;
+    z-index: 100;
+}
+
+.status-left, .status-right {
+    display: flex;
+    gap: 15px;
+}
+
+.terminal-wrapper {
+    position: fixed;
+    top: 30px;
+    left: 0;
+    width: 100%;
+    height: calc(100% - 30px);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.terminal-output {
+    flex: 1;
+    overflow-y: auto;
+    margin-bottom: 10px;
+    padding-right: 10px;
+}
+
+.output-line {
+    white-space: pre-wrap;
+    min-height: 1.5em; /* Ensure empty lines have height */
+}
+
+.terminal-input-line {
+    display: flex;
+    align-items: center;
+    background: transparent;
+    border: none;
+    padding: 0;
+}
+
+.terminal-input-line .prompt {
+    color: var(--green-bright);
+    margin-right: 10px;
+    white-space: nowrap;
+}
+
+.terminal-input {
+    width: 10px; /* Will be auto-resized by JS */
+    min-width: 10px;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--terminal-green);
+    font-family: var(--font-mono);
+    font-size: 14px;
+    caret-color: transparent;
+    padding: 0;
+    margin: 0;
+}
+
+.terminal-input::placeholder {
+    color: var(--green-dim);
+    opacity: 0.5;
+    font-style: italic;
+}
+
+/* === CONTENT STYLES === */
+.welcome-message {
+    margin-bottom: 30px;
+}
+
+.ascii-art {
+    color: var(--terminal-green);
+    font-size: 10px;
+    line-height: 1.2;
+    margin-bottom: 20px;
+    white-space: pre;
+}
+
+.command-output {
+    margin-bottom: 20px;
+    border-left: 2px solid var(--green-dim);
+    padding-left: 15px;
+}
+
+.file-header {
+    color: var(--gray);
+    margin-bottom: 10px;
+}
+
+.content-block {
+    margin-left: 10px;
+}
+
+.info-row {
+    margin: 5px 0;
+}
+
+.label {
+    color: var(--amber);
+    margin-right: 10px;
+    min-width: 60px;
+    display: inline-block;
+}
+
+.file-list {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.file-row {
+    display: grid;
+    grid-template-columns: 100px 60px 80px auto;
+    gap: 10px;
+}
+
+.perms { color: var(--green-dim); }
+.size { color: var(--amber); }
+.date { color: var(--gray); }
+.name { color: var(--terminal-green); }
+
+/* Project Styles */
+.project-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.project-entry {
+    margin-bottom: 10px;
+}
+
+.project-meta {
+    color: var(--gray);
+    margin-bottom: 5px;
+}
+
+.project-name {
+    color: var(--green-bright);
+    font-weight: bold;
+}
+
+.project-details {
+    margin-left: 20px;
+    color: var(--terminal-green);
+}
+
+.status-live { color: var(--terminal-green); }
+.status-dev { color: var(--amber); }
+
+.terminal-link {
+    color: var(--green-bright);
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.terminal-link:hover {
+    background: var(--terminal-green);
+    color: var(--bg-black);
+    text-decoration: none;
+}
+
+/* Connection Styles */
+.connection-list {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.conn-row {
+    display: grid;
+    grid-template-columns: 50px 150px 150px 120px auto;
+    gap: 10px;
+}
+
+.proto { color: var(--amber); }
+.local { color: var(--gray); }
+.remote { color: var(--terminal-green); }
+.state { color: var(--green-dim); }
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+    .terminal-status-bar {
+        font-size: 10px;
+        padding: 0 5px;
+    }
+
+    .status-right {
+        display: none; /* Hide extra stats on mobile */
+    }
+
+    .terminal-wrapper {
+        padding: 10px;
+        /* Ensure input isn't hidden by keyboard */
+        height: calc(100dvh - 30px); 
+    }
+
+    .ascii-art {
+        font-size: 5px; /* Smaller ASCII art */
+        margin-bottom: 15px;
+    }
+
+    .welcome-text p {
+        font-size: 12px;
+    }
+
+    /* Prevent iOS zoom on focus */
+    .terminal-input {
+        font-size: 16px; 
+    }
+
+    .terminal-input-line .prompt {
+        font-size: 12px;
+    }
+
+    /* Stack file lists for better readability */
+    .file-row {
+        grid-template-columns: 1fr;
+        gap: 2px;
+        margin-bottom: 12px;
+        border-bottom: 1px solid var(--green-dim);
+        padding-bottom: 5px;
+    }
+
+    .file-row span {
+        display: inline-block;
+    }
+
+    .perms, .size, .date {
+        font-size: 11px;
+        margin-right: 10px;
+    }
+
+    .name {
+        display: block;
+        font-size: 14px;
+        margin-top: 2px;
+    }
+
+    /* Stack connection lists */
+    .conn-row {
+        grid-template-columns: 1fr;
+        gap: 2px;
+        margin-bottom: 12px;
+        border-bottom: 1px solid var(--green-dim);
+        padding-bottom: 5px;
+    }
+
+    .conn-row span {
+        display: inline-block;
+        margin-right: 10px;
+        font-size: 11px;
+    }
+
+    .conn-row a {
+        display: block;
+        margin-top: 2px;
+        font-size: 14px;
+    }
+
+    /* Increase touch targets */
+    .terminal-link {
+        padding: 2px 0;
+        display: inline-block;
+    }
+}
+
+/* === GLITCH EFFECT === */
+.glitching {
+    color: #fff;
+    text-shadow: 0 0 5px var(--terminal-green);
+    background: rgba(0, 255, 0, 0.1);
+}
