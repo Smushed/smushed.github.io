@@ -521,11 +521,10 @@ function appendTemplate(templateId) {
 function initializeSystemInfo() {
   updateSystemInfo();
   setInterval(updateSystemInfo, 1000);
-  setInterval(updateMemoryUsage, 3000); // Update memory every 3s
+  setInterval(updateMemoryUsage, 3000);
 }
 
 function updateSystemInfo() {
-  // Update time
   const now = new Date();
   const hours = String(now.getHours()).padStart(2, '0');
   const minutes = String(now.getMinutes()).padStart(2, '0');
